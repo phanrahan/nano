@@ -1,24 +1,16 @@
 # For building FPGA image with Quartus
 
-DESIGN_NAME=DE0_NANO
+TARGET=main
 
-pgm: $(DESIGN_NAME).sof
-	quartus_pgm --mode=jtag -o "p;$(DESIGN_NAME).sof"
+$(TARGET).sof: 
+	quartus_map $(TARGET)
+	quartus_fit $(TARGET)
+	quartus_asm $(TARGET)
+	mv output_files/$(TARGET).sof $(TARGET).sof
 
-sta: asm
-	quartus_sta $(DESIGN_NAME)
-
-build: $(DESIGN_NAME).sof
-
-$(DESIGN_NAME).sof: $(DESIGN_NAME).fit.rpt
-	quartus_asm $(DESIGN_NAME)
-
-$(DESIGN_NAME).fit.rpt: $(DESIGN_NAME).map.rpt
-	quartus_fit $(DESIGN_NAME)
-
-$(DESIGN_NAME).map.rpt: $(DESIGN_NAME).qpf
-	quartus_map $(DESIGN_NAME)
+upload: $(TARGET).sof
+	quartus_pgm --mode=jtag -o "p;$(TARGET).sof"
 
 clean:
-	rm -rf incremental_db db output_files *.rpt *.summary *.sof *.smsg *.jdi *.pin *.sld 
+	rm -rf incremental_db db output_files *.qpf *.sof
 
